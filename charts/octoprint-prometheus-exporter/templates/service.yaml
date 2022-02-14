@@ -1,0 +1,14 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ include "exporter.names.fullname" . }}
+  labels:
+  {{- include "common.labels" . | nindent 4 }}
+  {{- include "exporter.labels" . | nindent 4 }}
+spec:
+  selector: {{- include "exporter.labels" . | nindent 4 }}
+  type: {{ .Values.exporter.service.type }}
+  ports:
+  - name: {{ include "exporter.names.fullname" . }}
+    port: {{ .Values.exporter.service.port }}
+    targetPort: {{ .Values.exporter.service.targetPort }}

@@ -1,0 +1,86 @@
+# octoprint-prometheus-exporter
+exporter:
+  name: octoprint-exporter
+
+  # exporter.replicas -- Number of pods running
+  replicas: 1
+  
+  # exporter.image -- Image hosting and image version configuration
+  image:
+    repository: ocotprint-prometheus-exporter
+    tag:
+  
+  # exporter.resources -- Container's resource requests and limits
+  resources:
+    # Example:
+    # limits:
+    #    cpu: 100m
+    #    memory: 128Mi
+    limits: {}
+    # Example:
+    # requests:
+    #    cpu: 100m
+    #    memory: 128Mi
+    requests: {}
+  
+  # exporter.service -- Service configuration
+  service:
+    type: ClusterIP
+    port: 3000
+    targetPort: 3000
+  
+  # exporter.ingressRoute -- Traefik IngressRoute configuration for
+  ingressRoute:
+    # exporter.inressRoute.path -- The path to match for Traefik to route to service
+    path: /exporter
+
+
+# Traefik Ingress-Controller
+# https://doc.traefik.io/traefik
+traefik:
+  enabled: false
+  # traefik.name -- Name given to all Traefik resources and labels
+  name: traefik
+  # traefik.replicas -- Number of Traefik replicas to deploy
+  replicas: 1
+  image:
+    # traefik.image.repository -- Traefik's image repository
+    repository: traefik
+    # traefik.image.tag -- Traefik's image tag
+    tag: v2.6
+  service:
+    # traefik.service.type -- The Kubernetes Service type for Traefik
+    type: LoadBalancer
+  # traefik.entrypoints -- Configuration for Traefik's entrypoints
+  entrypoints:
+    http:
+      name: http
+      port: 80
+    https:
+      name: https
+      port: 443
+    traefik:
+      name: traefik
+      port: 9000
+  # traefik.middleware -- Configuration for Traefik's middlewares
+  middleware:
+    redirect: traefik-middleware-redirect-http-to-https
+  # traefik.metrics -- Configuration for Traefik's Prometheus metrics
+  metrics:
+    enabled: true
+    name: traefik-metrics
+    service:
+      type: ClusterIP
+      path: /metrics
+  # traefik.resources -- Container(s) resource requests and limits for Traefik
+  resources:
+    # Example:
+    # limits:
+    #    cpu: 100m
+    #    memory: 128Mi
+    limits: {}
+    # Example:
+    # requests:
+    #    cpu: 100m
+    #    memory: 128Mi
+    requests: {}

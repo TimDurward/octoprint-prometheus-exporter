@@ -1,0 +1,23 @@
+{{- if .Values.traefik.enabled }}
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "exporter.names.fullname" . }}
+  labels:
+  {{- include "common.labels" . | nindent 4 }}
+  {{- include "exporter.labels" . | nindent 4 }}
+spec:
+  entryPoints:
+    - {{ .Values.traefik.entrypoints.http.name }}
+    - {{ .Values.traefik.entrypoints.https.name }}
+  routes:
+  - match: PathPrefix(`{{ .Values.exporter.ingressRoute.path }}`)
+    kind: Rule
+    services:
+    - name: {{ include "exporter.names.fullname" . }}
+      port: {{ .Values.exporter.service.portHttp }}
+    middlewares:
+      - name: {{ .Values.traefik.middleware.redirect }}
+  tls:
+    # secretName: cert-manager provided certificate
+{{- end }}

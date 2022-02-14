@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "exporter.names.fullname" . }}
+  labels:
+  {{- include "common.labels" . | nindent 4 }}
+  {{- include "exporter.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.exporter.replicas }}
+  selector:
+    matchLabels: {{- include "exporter.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+      {{- include "common.labels" . | nindent 8 }}
+      {{- include "exporter.labels" . | nindent 8 }}
+      annotations:
+        checksum/exporter-config: {{ include (print $.Template.BasePath "/exporter/configmap.yaml") . | sha256sum }}
+    spec:
+      containers:
+      - name: {{ include "exporter.names.fullname" . }}
+        image: "{{ .Values.amplication.image.registry }}/{{ .Values.exporter.image.repository }}:{{ .Values.exporter.image.tag | default .Values.amplication.image.tag }}"
+        resources: {{- toYaml .Values.exporter.resources | nindent 12 }}
+        envFrom:
+        - configMapRef:
+            name: {{ include "exporter.names.fullname" . }}
+        ports:
+          - name: http
+            containerPort: {{ .Values.exporter.service.targetPort }}
